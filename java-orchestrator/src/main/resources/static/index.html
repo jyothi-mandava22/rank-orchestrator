@@ -49,7 +49,6 @@
         .json-box.open { display:block; }
         .error-msg { background:#fee2e2; color:#991b1b; padding:12px 16px; border-radius:8px; margin-top:16px; display:none; border:1px solid #fecaca; }
         .error-msg.show { display:block; }
-        .error-msg .details { font-size:13px; margin-top:6px; color:#7f1d1d; font-family:monospace; background:#fef2f2; padding:8px; border-radius:4px; }
         .status-chip { background:#dcfce7; color:#065f46; padding:0 10px; border-radius:4px; font-size:13px; font-weight:600; }
         .status-chip.error { background:#fee2e2; color:#991b1b; }
         @media (max-width:600px) {
@@ -94,16 +93,16 @@
     </div>
 </div>
 <script>
-    async function runRank(t) {
-        document.querySelectorAll('.task-btn').forEach(b=>b.disabled=true);
+    async function runRank(task) {
+        document.querySelectorAll('.task-btn').forEach(b => b.disabled = true);
         document.getElementById('loader').classList.add('active');
         document.getElementById('results').classList.remove('active');
         document.getElementById('errorBox').classList.remove('show');
         document.getElementById('errorBox').innerHTML = '';
 
         try {
-            const response = await fetch(`/api/rank/${t}`, { method: 'POST' });
-            
+            const response = await fetch(`/api/rank/${task}`, { method: 'POST' });
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -120,13 +119,13 @@
                 throw new Error('Server returned incomplete data. Please check the logs.');
             }
 
-            displayResults(t, data);
+            displayResults(task, data);
 
         } catch (error) {
             const errorBox = document.getElementById('errorBox');
             errorBox.innerHTML = `
                 <strong>❌ ${error.message || 'Failed to fetch ranking'}</strong>
-                <div class="details">Make sure both Python and Java services are running. Check Render logs for details.</div>
+                <div style="margin-top:6px;font-size:13px;color:#7f1d1d;background:#fef2f2;padding:8px;border-radius:4px;">Make sure both Python and Java services are running. Check Render logs for details.</div>
             `;
             errorBox.classList.add('show');
             document.getElementById('loader').classList.remove('active');
