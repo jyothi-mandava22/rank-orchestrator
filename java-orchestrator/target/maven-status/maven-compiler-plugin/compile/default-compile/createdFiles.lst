@@ -1,0 +1,16 @@
+com\ats\engine\dto\ActionRequest.class
+com\ats\engine\dto\Candidate.class
+com\ats\engine\service\PythonClientService.class
+com\ats\engine\dto\SkillWeight.class
+com\ats\engine\controller\RankingController.class
+com\ats\engine\service\RankingOrchestratorService.class
+com\ats\engine\dto\JobDescription.class
+com\ats\engine\repository\RankingHistoryRepo.class
+com\ats\engine\dto\ResetResponse.class
+com\ats\engine\config\RestClientConfig.class
+com\ats\engine\dto\Observation.class
+com\ats\engine\dto\StepResponse.class
+com\ats\engine\RankingApplication.class
+com\ats\engine\repository\RankingHistory.class
+com\ats\engine\config\AsyncConfig.class
+com\ats\engine\service\JavaRankingEngine.class

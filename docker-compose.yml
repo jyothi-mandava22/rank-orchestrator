@@ -1,0 +1,47 @@
+services:
+  postgres-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass123
+      POSTGRES_DB: rankingdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  python-ranker:
+    build:
+      context: ./resume-screening-env
+      dockerfile: Dockerfile
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      API_BASE_URL: https://router.huggingface.co/v1
+      MODEL_NAME: Qwen/Qwen2.5-7B-Instruct
+    ports:
+      - "7860:7860"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7860/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  java-orchestrator:
+    build:
+      context: ./java-orchestrator
+      dockerfile: Dockerfile
+    depends_on:
+      postgres-db:
+        condition: service_started
+      python-ranker:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/rankingdb
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: pass123
+      PYTHON_SERVICE_URL: http://python-ranker:7860
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
