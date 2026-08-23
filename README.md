@@ -16,9 +16,15 @@
 
 ## Live Demo & Preview
 
+> **🚀 Live Dashboard:** [https://rank-orchestrator-java.onrender.com](https://rank-orchestrator-java.onrender.com)
+
+> *Hosted on Render's free tier — the service sleeps after inactivity, so the first load may take ~30-50 seconds to wake up.*
+
 **Dashboard Preview:**
 
 ![RankOrchestrator Dashboard](dashboard.png)
+
+<!-- Confirm dashboard.png is committed at the repo root before publishing — otherwise this renders broken on GitHub. -->
 
 ---
 
@@ -32,18 +38,20 @@
 
 *The deterministic Java engine consistently outperforms the pure LLM baseline across all difficulty tiers, proving that DSA-driven ranking is faster, cheaper, and more accurate for structured recruitment tasks.*
 
+<!-- Link this table to the script/notebook that produced it (e.g. benchmarks/run_eval.py) before publishing. Precise decimal figures with no reproducible source look fabricated to a technical reviewer. -->
+
 ---
 
 ## Table of Contents
 
-- [Overview](#-overview)
-- [Tech Stack](#-tech-stack)
-- [Key Features](#-key-features)
-- [Architecture Flow](#-architecture-flow)
-- [Project Structure](#-project-structure)
-- [How to Run](#-how-to-run)
-- [Future Work](#-future-work)
-- [Developer & Contact](#-developer--contact)
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Key Features](#key-features)
+- [Architecture Flow](#architecture-flow)
+- [Project Structure](#project-structure)
+- [How to Run](#how-to-run)
+- [Future Work](#future-work)
+- [Developer & Contact](#developer--contact)
 
 ---
 
@@ -81,17 +89,44 @@
 
 ## Architecture Flow
 
-```mermaid
-graph TD
-    A[User / Recruiter] -->|Clicks Easy/Medium/Hard| B[Java Orchestrator (Spring Boot)]
-    B -->|1. GET /reset (task)| C[Python Grader (FastAPI)]
-    C -->|Returns Job + Candidates| B
-    B -->|2. DSA Ranking Engine| D[HashMap + Comparator]
-    D -->|Ranked Candidate List| B
-    B -->|3. POST /step (Ranked IDs)| C
-    C -->|Computes Spearman Correlation| E[PostgreSQL DB]
-    C -->|Returns Reward Score| B
-    B -->|4. Renders Score + Ranked Table| A
+```
+User / Recruiter
+      │
+      ▼
+┌──────────────────────┐
+│  Java Orchestrator    │
+│  (Spring Boot)        │
+└──────────────────────┘
+      │  1. Reset Task
+      ▼
+┌──────────────────────┐
+│  Python Grader         │
+│  (FastAPI)             │
+└──────────────────────┘
+      │  Returns Job + Candidates
+      ▼
+┌──────────────────────┐
+│  DSA Ranking Engine    │
+│  (HashMap + Comparator)│
+└──────────────────────┘
+      │  Ranked Candidate List
+      ▼
+┌──────────────────────┐
+│  Python Grader         │
+│  (Spearman Corr.)      │
+└──────────────────────┘
+      │
+      ▼
+┌──────────────────────┐
+│  PostgreSQL DB         │
+│  (Stores History)      │
+└──────────────────────┘
+      │
+      ▼
+┌──────────────────────┐
+│  Dashboard UI           │
+│  (Score + Table)        │
+└──────────────────────┘
 ```
 
 ---
@@ -100,29 +135,29 @@ graph TD
 
 ```
 ranking-orchestrator-system/
-├── java-orchestrator/               # Spring Boot Orchestrator
+├── java-orchestrator/                  # Spring Boot Orchestrator
 │   ├── src/main/java/com/ats/engine/
-│   │   ├── config/                  # Async & RestTemplate configs
-│   │   ├── controller/              # REST endpoints (/api/rank/{task})
-│   │   ├── dto/                     # Data Transfer Objects (with @JsonProperty)
-│   │   ├── repository/              # JPA repositories (PostgreSQL)
-│   │   └── service/                 
-│   │       ├── JavaRankingEngine.java   # DSA Logic (HashMap + Comparator)
-│   │       ├── PythonClientService.java # REST calls to FastAPI
+│   │   ├── config/                     # Async & RestTemplate configs
+│   │   ├── controller/                 # REST endpoints (/api/rank/{task})
+│   │   ├── dto/                        # Data Transfer Objects (with @JsonProperty)
+│   │   ├── repository/                 # JPA repositories (PostgreSQL)
+│   │   └── service/
+│   │       ├── JavaRankingEngine.java          # DSA Logic (HashMap + Comparator)
+│   │       ├── PythonClientService.java        # REST calls to FastAPI
 │   │       └── RankingOrchestratorService.java # @Async logic
 │   ├── src/main/resources/static/
-│   │   └── index.html               # Recruiter Dashboard
+│   │   └── index.html                  # Recruiter Dashboard
 │   ├── pom.xml
 │   └── Dockerfile
 │
-├── resume-screening-env/            # Python FastAPI Grader
-│   ├── server/app.py                # FastAPI endpoints (/reset, /step)
-│   ├── env/                         # Spearman correlation logic
-│   ├── data/                        # Job descriptions & 50 resumes
+├── resume-screening-env/               # Python FastAPI Grader
+│   ├── server/app.py                   # FastAPI endpoints (/reset, /step)
+│   ├── env/                            # Spearman correlation logic
+│   ├── data/                           # Job descriptions & 50 resumes
 │   ├── requirements.txt
 │   └── Dockerfile
 │
-├── docker-compose.yml               # Orchestrates all 3 containers
+├── docker-compose.yml                  # Orchestrates all 3 containers
 └── README.md
 ```
 
@@ -133,21 +168,24 @@ ranking-orchestrator-system/
 > **Prerequisites:** Make sure **Docker** and **Docker Compose** are installed on your machine.
 
 1. **Clone the repository:**
+
    ```bash
-   git clone https://github.com/your-username/ranking-orchestrator-system.git
-   cd ranking-orchestrator-system
+   git clone https://github.com/jyothi-mandava22/rank-orchestrator.git
+   cd rank-orchestrator
    ```
 
 2. **Build and run the entire stack:**
+
    ```bash
    docker-compose up --build
    ```
 
 3. **Access the Dashboard:**
-   - Open your browser and go to: **`http://localhost:8080`**
-   - Click **Easy**, **Medium**, or **Hard** to see the ranking in action!
+   - Open your browser and go to: `http://localhost:8080`
+   - Click **Easy**, **Medium**, or **Hard** to see the ranking in action.
 
 4. **Stop the services:**
+
    ```bash
    docker-compose down
    ```
@@ -166,7 +204,7 @@ ranking-orchestrator-system/
 ## Developer & Contact
 
 **Mandava Jyothi Krishna**  
-B.Tech in Computer Engineering — Stanley College of Engineering & Technology for Women, Hyderabad  
-📧 **Email:** [mandavajyothikrishna@gmail.com](mailto:mandavajyothikrishna@gmail.com)  
-🔗 **LinkedIn:** [linkedin.com/in/jyothikrishnamandava](https://www.linkedin.com/in/jyothikrishnamandava/)  
+B.E Computer Engineering — Stanley College of Engineering & Technology for Women, Hyderabad  
 
+[![Gmail](https://img.shields.io/badge/Gmail-mandavajyothikrishna%40gmail.com-red?logo=gmail)](mailto:mandavajyothikrishna@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Jyothi%20Krishna%20Mandava-blue?logo=linkedin)](https://www.linkedin.com/in/jyothi-krishna-mandava-216980291/)
