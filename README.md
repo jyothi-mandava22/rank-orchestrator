@@ -16,12 +16,9 @@
 
 ## Live Demo & Preview
 
-> **Live Demo:** Available upon request for interviews. I can spin up a live tunnel during our call so you can test it in your browser!
-
 **Dashboard Preview:**
 
 ![RankOrchestrator Dashboard](dashboard.png)
-*(Add a screenshot of your beautiful dark-blue dashboard here!)*
 
 ---
 
