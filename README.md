@@ -1,6 +1,6 @@
 # 🎯 RankOrchestrator
 
-> Enterprise Candidate Ranking Engine
+> Candidate Ranking Engine & Recruiter Dashboard
 
 **A Java + Python hybrid microservice that ranks job candidates using Data Structures & Algorithms (DSA) and validates accuracy with Spearman correlation.**
 
